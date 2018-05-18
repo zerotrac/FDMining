@@ -8,21 +8,29 @@
 struct pairhash
 {
 public:
-    template <typename T, typename U>
+    /*template <typename T, typename U>
     std::size_t operator()(const std::pair<T, U> &x) const
     {
-        return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
+        //return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
+        return std::hash<T>()(x.first);
+    }*/
+    std::size_t operator()(const std::pair<int, int> &x) const
+    {
+        return (x.first << 12) + x.second;
     }
 };
 
 class BruteForce
 {
 private:
-    const static int ROW_COUNT = 100;
-    const static int COLUMN_COUNT = 12;
+    // const static int ROW_COUNT = 100;
+    // const static int COLUMN_COUNT = 12;
+    const static int ROW_COUNT = 99918;
+    const static int COLUMN_COUNT = 15;
     const static int PER_LAYER_COUNT = 6300;
     
 private:
+    std::vector<std::vector<int>> ans;
     std::unordered_map<std::string, int>* mapToHash;
     int** hashedData;
     int* calculatedPartition;
@@ -56,16 +64,20 @@ public:
         return __builtin_popcount(a) < __builtin_popcount(b) || (__builtin_popcount(a) == __builtin_popcount(b) && a < b);
     }
     
-    static void output(int lhs, int rhs)
+    static bool cmp2(const std::vector<int>& a, const std::vector<int>& b)
     {
-        for (int i = 0; i < COLUMN_COUNT; ++i)
+        int la = (int)a.size();
+        int lb = (int)b.size();
+        int l = std::min(la, lb);
+        
+        for (int i = 0; i < l; ++i)
         {
-            if (lhs & (1 << i))
+            if (a[i] != b[i])
             {
-                std::cout << i + 1 << " ";
+                return a[i] < b[i];
             }
         }
-        std::cout << "-> " << rhs + 1 << "\n";
+        return la < lb;
     }
     
     static int lowbit(int x)
@@ -77,9 +89,10 @@ private:
     void giveMeFive(int rhs);
     int calcPI(int layer, int dj);
     int mergePI(int layer1, int dj1, int layer2, int dj2, int dj3);
-    int getPI(int layer1, int dj1, int tick, int location);
+    int getPI(int layer1, int dj1, int tick, int location, int left);
     void updatePI(int pi, int location);
     void floodfill(int binrep);
+    void output(int lhs, int rhs);
     
 public:
     BruteForce(const std::string& fileName);

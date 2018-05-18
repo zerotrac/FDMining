@@ -140,11 +140,13 @@ void BruteForce::giveMeFive(int rhs)
 
     for (int i = 1; i < COLUMN_COUNT; ++i)
     {
+        std::cout << "column = " << i << "\n";
         int positive = 0;
         int layer = i & 1;
         
         for (int j = vl[i]; j <= vr[i]; ++j)
         {
+            // std::cout << "j = " << j << " " << vl[i] << " " << vr[i] << "\n";
             int dj = j - vl[i];
             if (i == 1)
             {
@@ -160,7 +162,9 @@ void BruteForce::giveMeFive(int rhs)
                 }
                 
                 int leftPI = calcPI(layer, dj);
-                int rightPI = getPI(layer, dj, tick, binRepresent[j] | (1 << rhs));
+                int rightPI = getPI(layer, dj, rhs, binRepresent[j] | (1 << rhs), leftPI);
+                
+                // std::cout << "j = " << j << " " << binRepresent[j] << " " << leftPI << " " << rightPI << "\n";
                 if (leftPI == rightPI)
                 {
                     output(binRepresent[j], rhs);
@@ -192,6 +196,7 @@ void BruteForce::giveMeFive(int rhs)
                         int tick = binRepresent[j] ^ (1 << k);
                         if (!prevLayerUsed[1 - layer][location[tick] - vl[i - 1]])
                         {
+                            // std::cout << "judge false\n";
                             judge = false;
                             break;
                         }
@@ -204,15 +209,27 @@ void BruteForce::giveMeFive(int rhs)
                     continue;
                 }
                 
+                std::cout << "j = " << j << " " << vl[i] << " " << vr[i] << "\n";
+                
                 int originx = binRepresent[j] - lowbit(binRepresent[j]);
                 int originy = lowbit(binRepresent[j]) + originx - lowbit(originx);
                 
                 int ox = location[originx] - vl[i - 1];
                 int oy = location[originy] - vl[i - 1];
+                // clock_t ta = clock();
                 int leftPI = mergePI(layer, dj, 1 - layer, ox, oy);
-                int rightPI = getPI(layer, dj, rhs, binRepresent[j] | (1 << rhs));
+                // clock_t tb = clock();
+                // std::cout << "leftPI = " << leftPI << "\n";
+                int rightPI = getPI(layer, dj, rhs, binRepresent[j] | (1 << rhs), leftPI);
+                // clock_t tc = clock();
+                // double da = (double)(tb - ta) / CLOCKS_PER_SEC;
+                // double db = (double)(tc - tb) / CLOCKS_PER_SEC;
+                // std::cout << "dut = " << da << " " << db << "\n";
+                // std::cout << "rightPI = " << leftPI << "\n";
+                // if (leftPI == rightPI) std::cout << "l, r = " << leftPI << " " << rightPI << "\n";
                 if (leftPI == rightPI)
                 {
+                    // std::cout << "location = " << binRepresent[j] << " " << dj << "\n";
                     output(binRepresent[j], rhs);
                     prevLayerUsed[layer][dj] = false;
                 }
@@ -256,6 +273,7 @@ int BruteForce::mergePI(int layer1, int dj1, int layer2, int dj2, int dj3)
     std::unordered_map<std::pair<int, int>, int, pairhash> s;
     for (int i = 0; i < ROW_COUNT; ++i)
     {
+        // if (i % 10000 == 0) std::cout << "mergepi i = " << i << "\n";
         std::pair<int, int> pii = std::make_pair(prevLayerPartition[layer2][dj2][i], prevLayerPartition[layer2][dj3][i]);
         if (s.find(pii) == s.end())
         {
@@ -270,9 +288,10 @@ int BruteForce::mergePI(int layer1, int dj1, int layer2, int dj2, int dj3)
     return (int)s.size();
 }
 
-int BruteForce::getPI(int layer1, int dj1, int tick, int location)
+int BruteForce::getPI(int layer1, int dj1, int tick, int location, int left)
 {
-    if (hashedData[location] > 0)
+    // std::cout << "location = " << layer1 << " " << dj1 << " " << tick << " " << location << " " << calculatedPartition[location] << "\n";
+    if (calculatedPartition[location] > 0)
     {
         return calculatedPartition[location];
     }
@@ -280,11 +299,15 @@ int BruteForce::getPI(int layer1, int dj1, int tick, int location)
     std::unordered_map<std::pair<int, int>, int, pairhash> s;
     for (int i = 0; i < ROW_COUNT; ++i)
     {
+        // if (i % 10000 == 0) std::cout << "getpi i = " << i << "\n";
         std::pair<int, int> pii = std::make_pair(prevLayerPartition[layer1][dj1][i], hashedData[tick][i]);
+        //std::cout << "pair = " << prevLayerPartition[layer1][dj1][i] << " " << hashedData[tick][i] << "\n";
         if (s.find(pii) == s.end())
         {
             s[pii] = (int)s.size();
+            if (s.size() > left) return -1;
         }
+        
     }
     return calculatedPartition[location] = (int)s.size();
 }
@@ -314,10 +337,48 @@ void BruteForce::floodfill(int binrep)
     }
 }
 
+void BruteForce::output(int lhs, int rhs)
+{
+    /*for (int i = 0; i < COLUMN_COUNT; ++i)
+     {
+     if (lhs & (1 << i))
+     {
+     std::cout << i + 1 << " ";
+     }
+     }
+     std::cout << "-> " << rhs + 1 << "\n";*/
+    std::vector<int> part;
+    for (int i = 0; i < COLUMN_COUNT; ++i)
+    {
+        if (lhs & (1 << i))
+        {
+            part.push_back(i + 1);
+        }
+    }
+    part.push_back(rhs + 1);
+    ans.push_back(part);
+}
+
 void BruteForce::execute()
 {
     for (int i = 0; i < COLUMN_COUNT; ++i)
     {
+        std::cout << "i = " << i << "\n";
         giveMeFive(i);
     }
+    
+    // print
+    
+    sort(ans.begin(), ans.end(), cmp2);
+    std::cout << "count = " << ans.size() << "\n";
+    std::ofstream out("testdata/data_output.txt");
+    for (const std::vector<int>& part: ans)
+    {
+        for (int i = 0; i < part.size() - 1; ++i)
+        {
+            out << part[i] << " ";
+        }
+        out << "-> " << part[part.size() - 1] << "\n";
+    }
+    out.close();
 }
