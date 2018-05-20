@@ -1,14 +1,14 @@
+#include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <unordered_map>
 
-#include "Tane.h"
+#include "TaneOptimized.h"
 // #include "Debug.h"
 
-
-Tane::Tane(const std::string& _inputFileName, const std::string& _outputFileName, int smallOrLarge)
+TaneOptimized::TaneOptimized(const std::string& _inputFileName, const std::string& _outputFileName, int smallOrLarge)
 {
     inputFileName = _inputFileName;
     outputFileName = _outputFileName;
@@ -24,11 +24,20 @@ Tane::Tane(const std::string& _inputFileName, const std::string& _outputFileName
         exactColumnCount = COLUMN_COUNT_SMALL;
     }
     
+    clock_t ta = clock();
     prepareLayers();
+    clock_t tb = clock();
     prepareData();
+    clock_t tc = clock();
+    double xx = (double)(tb - ta) / CLOCKS_PER_SEC;
+    double yy = (double)(tc - tb) / CLOCKS_PER_SEC;
+    std::cout << "prepare layers: " << xx << "\n";
+    std::cout << "prepare data: " << yy << "\n";
+    
+    presubl = -1;
 }
 
-Tane::~Tane()
+TaneOptimized::~TaneOptimized()
 {
     for (int i = 0; i < (1 << exactColumnCount); ++i)
     {
@@ -47,7 +56,7 @@ Tane::~Tane()
 }
 
 
-void Tane::prepareLayers()
+void TaneOptimized::prepareLayers()
 {
     // divide sets by their length |S|
     
@@ -77,8 +86,11 @@ void Tane::prepareLayers()
     }
 }
 
-void Tane::prepareData()
+void TaneOptimized::prepareData()
 {
+    FILE* input = fopen(inputFileName.c_str(), "r");
+    // setvbuf(input, new char[1 << 25], _IOFBF, 1 << 25);
+    
     partition = new std::vector<std::vector<int>>[1 << exactColumnCount];
     rhsPlus = new int[1 << exactColumnCount];
     for (int i = 0; i < (1 << exactColumnCount); ++i)
@@ -94,15 +106,16 @@ void Tane::prepareData()
     
     std::unordered_map<std::string, int>* mapToHash = new std::unordered_map<std::string, int>[exactColumnCount];
     std::vector<std::vector<int>>* vectorToHash = new std::vector<std::vector<int>>[exactColumnCount];
-
-    std::ifstream in(inputFileName);
-    std::string st;
     
+    // std::ifstream in(inputFileName);
+    // std::string st;
+    
+    std::vector<std::string> v;
     int curRow = 0;
-    while (std::getline(in, st))
+    while (fgets(buf, 1 << 20, input))
     {
-        st = st + ',';
-        std::vector<std::string> v = split(st);
+        std::string st = std::string(buf) + ',';
+        split(v, st);
         
         int column = 0;
         for (const std::string& cur: v)
@@ -121,7 +134,7 @@ void Tane::prepareData()
         }
         ++curRow;
     }
-
+    
     for (int i = 0; i < exactColumnCount; ++i)
     {
         int rest = exactRowCount;
@@ -146,10 +159,10 @@ void Tane::prepareData()
     delete[] mapToHash;
     delete[] vectorToHash;
     
-    in.close();
+    fclose(input);
 }
 
-std::vector<int> Tane::getSubsets(int bin)
+std::vector<int> TaneOptimized::getSubsets(int bin)
 {
     std::vector<int> subsets;
     int bin0 = bin;
@@ -162,7 +175,7 @@ std::vector<int> Tane::getSubsets(int bin)
     return subsets;
 }
 
-bool Tane::checkAllSubsets(const std::vector<int>& subsets)
+bool TaneOptimized::checkAllSubsets(const std::vector<int>& subsets)
 {
     for (int subset: subsets)
     {
@@ -174,9 +187,15 @@ bool Tane::checkAllSubsets(const std::vector<int>& subsets)
     return true;
 }
 
-void Tane::strippedProduct(int bin, int subl, int subr)
+bool TaneOptimized::strippedProduct(int bin, int subl, int subr, int presubl)
 {
-    for (int i = 0; i < partition[subl].size(); ++i)
+    if (partitionSize[subl] == exactRowCount || partitionSize[subr] == exactRowCount)
+    {
+        partitionSize[bin] = exactRowCount;
+        return false;
+    }
+    
+    /*for (int i = 0; i < partition[subl].size(); ++i)
     {
         for (int j: partition[subl][i])
         {
@@ -205,25 +224,63 @@ void Tane::strippedProduct(int bin, int subl, int subr)
             S[T[j]].clear();
         }
     }
-    partitionSize[bin] += rest;
+    partitionSize[bin] += rest;*/
     
-    for (int i = 0; i < partition[subl].size(); ++i)
+    if (subl != presubl)
+    {
+        memset(T, -1, sizeof(int) * exactRowCount);
+        int i = 0;
+        for (const std::vector<int>& part: partition[subl])
+        {
+            for (int j: part)
+            {
+                T[j] = i;
+            }
+            ++i;
+        }
+    }
+    
+    int rest = exactRowCount;
+    for (const std::vector<int>& part: partition[subr])
+    {
+        for (int j: part)
+        {
+            if (T[j] != -1)
+            {
+                S[T[j]].push_back(j);
+            }
+        }
+        for (int j: part)
+        {
+            if (S[T[j]].size() > 1)
+            {
+                partition[bin].push_back(S[T[j]]);
+                ++partitionSize[bin];
+                rest -= S[T[j]].size();
+            }
+            S[T[j]].clear();
+        }
+    }
+    partitionSize[bin] += rest;
+    return true;
+    /*for (int i = 0; i < partition[subl].size(); ++i)
     {
         for (int j: partition[subl][i])
         {
             T[j] = -1;
         }
-    }
+    }*/
 }
 
-void Tane::computeDependencies(const std::vector<int>& subsets, int bin)
+void TaneOptimized::computeDependencies(const std::vector<int>& subsets, int bin)
 {
     for (int subset: subsets)
     {
         rhsPlus[bin] &= rhsPlus[subset];
     }
     
-    strippedProduct(bin, subsets[0], subsets[1]);
+    bool changed = strippedProduct(bin, subsets[0], subsets[1], presubl);
+    if (changed) presubl = subsets[0];
     
     int intersect = bin & rhsPlus[bin];
     for (int subset: subsets)
@@ -241,7 +298,7 @@ void Tane::computeDependencies(const std::vector<int>& subsets, int bin)
     }
 }
 
-void Tane::output(int lhs, int rhs)
+void TaneOptimized::output(int lhs, int rhs)
 {
     std::vector<int> part;
     for (int i = 0; i < exactColumnCount; ++i)
@@ -263,7 +320,7 @@ void Tane::output(int lhs, int rhs)
 }
 
 
-void Tane::execute()
+void TaneOptimized::execute()
 {
     for (int ccnt = 2; ccnt <= exactColumnCount; ++ccnt)
     {
@@ -290,40 +347,7 @@ void Tane::execute()
                 available[bin] = false;
             }
         }
-        
-        // a prune method which is proved wrong
-        /* for (int i = binL[ccnt]; i <= binR[ccnt]; ++i)
-        {
-            int bin = binRepresent[i];
-            
-            if (partitionSize[bin] == exactRowCount)
-            {
-                int xxx = rhsPlus[bin] & (~bin);
-                while (xxx)
-                {
-                    int A = lowbit(xxx);
-                    int yyy = bin;
-                    bool flag = true;
-                    while (yyy)
-                    {
-                        int B = lowbit(yyy);
-                        if (!(A & rhsPlus[bin + A - B]))
-                        {
-                            flag = false;
-                            break;
-                        }
-                        yyy -= B;
-                    }
-                    if (flag)
-                    {
-                        output(bin, A);
-                    }
-                    xxx -= A;
-                }
-                available[bin] = false;
-            }
-        } */
-        
+
         clock_t a2 = clock();
         double dura = (double)(a2 - a1) / CLOCKS_PER_SEC;
         std::cout << "do partition " << cntcnt << " times\n";

@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "Tane.h"
+#include "TaneOptimized.h"
 
 inline void optimize()
 {
@@ -12,7 +13,7 @@ inline void optimize()
 int main(int argc, char** argv)
 {
     clock_t ta = clock();
-    optimize();
+    // optimize();
     
     if (argc < 2)
     {
@@ -22,12 +23,12 @@ int main(int argc, char** argv)
     
     if (strcmp(argv[1], "small") == 0)
     {
-        Tane* t = new Tane("testdata/data_small.txt", "testdata/fd_small.txt", 0);
+        TaneOptimized* t = new TaneOptimized("testdata/data_small.txt", "testdata/fd_small.txt", 0);
         t->execute();
     }
     else if (strcmp(argv[1], "large") == 0)
     {
-        Tane* t = new Tane("testdata/data_large.txt", "testdata/fd_large.txt", 1);
+        TaneOptimized* t = new TaneOptimized("testdata/data_large.txt", "testdata/fd_large.txt", 1);
         t->execute();
     }
     else
