@@ -56,7 +56,7 @@ g++ -o FD TaneOptimized.cpp Tane.cpp main.cpp -std=c++11 -O3
 
 ### 2.2 实验简述
 
-本次试验中实现了三种算法，分别对应 `BruteForce.h/cpp`，`Tane.h/cpp` 和 `TaneOptimized.h/cpp`。其中 `BruteForce` 是没有任何优化的暴力，仅用来跑出大数据的结果并验证后续需要实现算法的正确性。跑出的结果存放在 `testdata/fd_<dataset>_comparison.txt` 中。`Tane` 是按照论文复现的算法。`TaneOptimized` 是对读入和原论文的某些实现进一步优化的算法。
+本次实验中实现了三种算法，分别对应 `BruteForce.h/cpp`，`Tane.h/cpp` 和 `TaneOptimized.h/cpp`。其中 `BruteForce` 是没有任何优化的暴力，仅用来跑出大数据的结果并验证后续算法的正确性。跑出的结果存放在 `testdata/fd_<dataset>_comparison.txt` 中。`Tane` 是按照论文复现的算法。`TaneOptimized` 是对读入和原论文的某些实现进一步优化的算法。
 
 ### 2.3 运行时间
 
@@ -91,7 +91,7 @@ g++ -o FD TaneOptimized.cpp Tane.cpp main.cpp -std=c++11 -O3
 
 ### 3.1 Tane 简述
 
-由于课上已经详细将结果 Tane 算法了，所以这里我们只提一点：Tane 是一个基于 BFS 的算法，按照层次优先进行搜索，第 i 层表示大小为 i 的集合。在 Tane 的论文中，作者详细给出了算法主框架和每一个函数的框架，方便读者进行复现。然而在这次实验中，我们发现了论文中的一个错误和若干个仍然可以进行优化的地方。
+由于课上已经详细讲过 Tane 算法了，所以这里我们只提一点：Tane 是一个基于 BFS 的算法，按照层次优先进行搜索，第 i 层表示大小为 i 的集合。在 Tane 的论文中，作者详细给出了算法主框架和每一个函数的框架，方便读者进行复现。然而在这次实验中，我们发现了论文中的一个错误和若干个仍然可以进行优化的地方。
 
 ### 3.2 Prune 中的错误
 
