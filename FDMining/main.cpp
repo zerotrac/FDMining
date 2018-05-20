@@ -24,11 +24,13 @@ int main(int argc, char** argv)
     if (strcmp(argv[1], "small") == 0)
     {
         TaneOptimized* t = new TaneOptimized("testdata/data_small.txt", "testdata/fd_small.txt", 0);
+        // Tane* t = new Tane("testdata/data_small.txt", "testdata/fd_small.txt", 0);
         t->execute();
     }
     else if (strcmp(argv[1], "large") == 0)
     {
         TaneOptimized* t = new TaneOptimized("testdata/data_large.txt", "testdata/fd_large.txt", 1);
+        // Tane* t = new Tane("testdata/data_large.txt", "testdata/fd_large.txt", 1);
         t->execute();
     }
     else

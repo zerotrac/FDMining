@@ -114,7 +114,10 @@ void TaneOptimized::prepareData()
     int curRow = 0;
     while (fgets(buf, 1 << 20, input))
     {
-        std::string st = std::string(buf) + ',';
+        size_t sz = strlen(buf);
+        if (buf[sz - 1] == '\n') --sz;
+        std::string st = std::string(buf, sz) + ',';
+        // std::string st = std::string(buf) + ',';
         split(v, st);
         
         int column = 0;
@@ -262,7 +265,7 @@ bool TaneOptimized::strippedProduct(int bin, int subl, int subr, int presubl)
         }
     }
     partitionSize[bin] += rest;
-    return true;
+    // return true;
     /*for (int i = 0; i < partition[subl].size(); ++i)
     {
         for (int j: partition[subl][i])
@@ -270,6 +273,8 @@ bool TaneOptimized::strippedProduct(int bin, int subl, int subr, int presubl)
             T[j] = -1;
         }
     }*/
+    
+    return true;
 }
 
 void TaneOptimized::computeDependencies(const std::vector<int>& subsets, int bin)
