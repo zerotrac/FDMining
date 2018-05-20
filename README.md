@@ -3,7 +3,6 @@
 <div style="text-align:right;">2015013157 王景隆</div>
 <div style="text-align:right;">2015013229 陈书新</div>
 
-
 ## 1 实验环境
 
 ### 1.1 本机环境
@@ -25,20 +24,20 @@
 
 ```
 FDMining/
-	testdata/
-		data_small.txt
-		data_large.txt
-		fd_small.txt
-		fd_large.txt
-		fd_small_comparison.txt
-		fd_large_comparison.txt
-	BruteForce.h
-	BruteForce.cpp
-	Tane.h
-	Tane.cpp
-	TaneOptimized.h
-	TaneOptimized.cpp
-	Makefile
+    testdata/
+        data_small.txt
+        data_large.txt
+        fd_small.txt
+        fd_large.txt
+        fd_small_comparison.txt
+        fd_large_comparison.txt
+    BruteForce.h
+    BruteForce.cpp
+    Tane.h
+    Tane.cpp
+    TaneOptimized.h
+    TaneOptimized.cpp
+    Makefile
 ```
 
 首先运行 `make` 进行编译，若无法使用，也可以手动进行编译：
@@ -62,26 +61,26 @@ g++ -o FD TaneOptimized.cpp Tane.cpp main.cpp -std=c++11 -O3
 ### 2.3 运行时间
 
 <table>
-	<tr>
-		<th bgcolor="#dddddd">算法</th>
-		<th bgcolor="#dddddd">小数据</th>
-		<th bgcolor="#dddddd">大数据</th>
-	</tr>
-	<tr>
-   		<td>BruteForce</td>
-   		<td>< 0.1s</td>
-   		<td>900s</td>
-	</tr>
- 	<tr>
- 		<td bgcolor="#eeeeee">Tane</td>
- 		<td bgcolor="#eeeeee">< 0.1s</td>
- 		<td bgcolor="#eeeeee">2.3-2.5s</td>
- 	</tr>
- 	<tr>
- 		<td>TaneOptmized</td>
- 		<td>< 0.1s</td>
- 		<td>1.8-1.9s</td>
-	</tr>
+    <tr>
+        <th bgcolor="#dddddd">算法</th>
+        <th bgcolor="#dddddd">小数据</th>
+        <th bgcolor="#dddddd">大数据</th>
+    </tr>
+    <tr>
+           <td>BruteForce</td>
+           <td>< 0.1s</td>
+           <td>900s</td>
+    </tr>
+     <tr>
+         <td bgcolor="#eeeeee">Tane</td>
+         <td bgcolor="#eeeeee">< 0.1s</td>
+         <td bgcolor="#eeeeee">2.3-2.5s</td>
+     </tr>
+     <tr>
+         <td>TaneOptmized</td>
+         <td>< 0.1s</td>
+         <td>1.8-1.9s</td>
+    </tr>
 </table>
 
 所有算法均在小数据中得到 109 对函数依赖，大数据中得到 518 对函数依赖。经过 `diff` 输出文件对比后，它们的结果均相同。
@@ -102,13 +101,13 @@ g++ -o FD TaneOptimized.cpp Tane.cpp main.cpp -std=c++11 -O3
 Procedure Prune(L_l)
 
 foreach X in L_l do
-	if C+(X) = emptyset do
-		delete X from L_l
-	if X is a (super)key do
-		foreach A in C+(X)\X do
-			if A in intersect(B in X, C+(X+{A}\{B})) then
-				output X -> A
-		delete X from L_l
+    if C+(X) = emptyset do
+        delete X from L_l
+    if X is a (super)key do
+        foreach A in C+(X)\X do
+            if A in intersect(B in X, C+(X+{A}\{B})) then
+                output X -> A
+        delete X from L_l
 ```
 
 其中 `C+(X)` 即为 `RHS+(X)`。第一个 `if` 的剪枝中，删去了所有 `C+(X)` 为空的集合，这是显然的，因为如果当前集合的 `C+(X)` 为空，`RHS+(X)` 的计算方式是取所有子集的并，那么它在后续层直接 / 间接相连的集合（即超集）的 `RHS+(X)` 都为空，因此这个集合是可以删除的。
@@ -116,26 +115,26 @@ foreach X in L_l do
 但第二个 `if` 的剪枝是错误的。在这个 `if` 中，如果 `X` 是一个 `key`，那么就会提前输出 `X` 作为左边时的函数依赖，然后把 `X` 删除。但真的能删除 `key` 吗？由于函数依赖的最小性质，这个 `X` 以后确实不可能以子集的形式出现在函数依赖的左边，但它可能会出现在右边（如果 `X` 只包含一个元素时）。由于删除 `X` 意味着删除了所有 `X` 的超级，那么以后 `X` 永远不会出现在函数依赖的右边了。举个例子：
 
 <table>
-	<tr>
-		<th bgcolor="#dddddd">A</th>
-		<th bgcolor="#dddddd">B</th>
-		<th bgcolor="#dddddd">C</th>
-	</tr>
-	<tr>
-   		<td>a</td>
-   		<td>1</td>
-   		<td>2</td>
-	</tr>
- 	<tr>
- 		<td bgcolor="#eeeeee">b</td>
- 		<td bgcolor="#eeeeee">1</td>
- 		<td bgcolor="#eeeeee">3</td>
- 	</tr>
- 	<tr>
- 		<td>c</td>
- 		<td>2</td>
- 		<td>3</td>
-	</tr>
+    <tr>
+        <th bgcolor="#dddddd">A</th>
+        <th bgcolor="#dddddd">B</th>
+        <th bgcolor="#dddddd">C</th>
+    </tr>
+    <tr>
+           <td>a</td>
+           <td>1</td>
+           <td>2</td>
+    </tr>
+     <tr>
+         <td bgcolor="#eeeeee">b</td>
+         <td bgcolor="#eeeeee">1</td>
+         <td bgcolor="#eeeeee">3</td>
+     </tr>
+     <tr>
+         <td>c</td>
+         <td>2</td>
+         <td>3</td>
+    </tr>
 </table>
 
 如上数据表中，`A` 是一个 `key`，有函数依赖 `A->B` 和 `A->C`，但同时也有 `BC->A`。如果使用了第二个 `if` 的剪枝，那么 `BC->A` 这个依赖就永远搜索不到了。小数据集中并没有 `key`，因此加上这个剪枝后，结果并不会错误，但大数据集中有 `key`（第一个属性），因此就体现出了第二个剪枝的错误性。
@@ -163,10 +162,10 @@ foreach X in L_l do
 ```
 for (int pos = 0; pos < MAX_POS; ++pos)
 {
-	if (A & (1 << pos))
-	{
-		// do something
-	}
+    if (A & (1 << pos))
+    {
+        // do something
+    }
 }
 ```
 
@@ -177,8 +176,8 @@ int lowbit(x) {return x & (-x);}
 
 while (A)
 {
-	int pos = lowbit(A);
-	A -= pos;
+    int pos = lowbit(A);
+    A -= pos;
 }
 ```
 
@@ -193,10 +192,10 @@ Procedure Generate_Next_Level(L_l)
 
 L_{l+1} = emptyset
 foreach K in Prefix_Blocks(L_l) do
-	foreach {Y, Z} in K, Y neq K do
-		X = union(Y, Z)
-		if forall A in X, X\{A} in L_l then
-			L_{l+1} = union(L_{l+1}, {X})
+    foreach {Y, Z} in K, Y neq K do
+        X = union(Y, Z)
+        if forall A in X, X\{A} in L_l then
+            L_{l+1} = union(L_{l+1}, {X})
 return L_{l+1}
 ```
 
