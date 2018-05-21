@@ -165,9 +165,9 @@ void TaneOptimized::prepareData()
     fclose(input);
 }
 
-std::vector<int> TaneOptimized::getSubsets(int bin)
+void TaneOptimized::getSubsets(std::vector<int>& subsets, int bin)
 {
-    std::vector<int> subsets;
+    subsets.clear();
     int bin0 = bin;
     while (bin0)
     {
@@ -175,7 +175,6 @@ std::vector<int> TaneOptimized::getSubsets(int bin)
         subsets.push_back(bin - bit);
         bin0 -= bit;
     }
-    return subsets;
 }
 
 bool TaneOptimized::checkAllSubsets(const std::vector<int>& subsets)
@@ -305,7 +304,7 @@ void TaneOptimized::computeDependencies(const std::vector<int>& subsets, int bin
 
 void TaneOptimized::output(int lhs, int rhs)
 {
-    std::vector<int> part;
+    part.clear();
     for (int i = 0; i < exactColumnCount; ++i)
     {
         if (lhs & (1 << i))
@@ -336,7 +335,7 @@ void TaneOptimized::execute()
         for (int i = binL[ccnt]; i <= binR[ccnt]; ++i)
         {
             int bin = binRepresent[i];
-            std::vector<int> subsets = getSubsets(bin);
+            getSubsets(subsets, bin);
             if (checkAllSubsets(subsets))
             {
                 ++cntcnt;

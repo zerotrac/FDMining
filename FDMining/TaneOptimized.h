@@ -16,6 +16,8 @@ private:
     const static int COLUMN_COUNT_LARGE = 15;
     
 private:
+    std::vector<int> subsets;
+    std::vector<int> part;
     char buf[1 << 20];
     int presubl;
     
@@ -90,7 +92,7 @@ private:
 private:
     void prepareLayers();
     void prepareData();
-    std::vector<int> getSubsets(int bin);
+    void getSubsets(std::vector<int>& subsets, int bin);
     bool checkAllSubsets(const std::vector<int>& subsets);
     bool strippedProduct(int bin, int subl, int subr, int presubl);
     void computeDependencies(const std::vector<int>& subsets, int bin);
