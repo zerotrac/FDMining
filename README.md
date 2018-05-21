@@ -56,7 +56,7 @@ g++ -o FD TaneOptimized.cpp Tane.cpp main.cpp -std=c++11 -O3
 
 ### 2.2 实验简述
 
-本次试验中实现了三种算法，分别对应 `BruteForce.h/cpp`，`Tane.h/cpp` 和 `TaneOptimized.h/cpp`。其中 `BruteForce` 是没有任何优化的暴力，仅用来跑出大数据的结果并验证后续需要实现算法的正确性。跑出的结果存放在 `testdata/fd_<dataset>_comparison.txt` 中。`Tane` 是按照论文复现的算法。`TaneOptimized` 是对读入和原论文的某些实现进一步优化的算法。
+本次实验中实现了三种算法，分别对应 `BruteForce.h/cpp`，`Tane.h/cpp` 和 `TaneOptimized.h/cpp`。其中 `BruteForce` 是没有任何优化的暴力，仅用来跑出大数据的结果并验证后续算法的正确性。跑出的结果存放在 `testdata/fd_<dataset>_comparison.txt` 中。`Tane` 是按照论文复现的算法。`TaneOptimized` 是对读入和原论文的某些实现进一步优化的算法。
 
 ### 2.3 运行时间
 
