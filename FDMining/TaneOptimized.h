@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 #define _bp __builtin_popcount
 
@@ -16,18 +17,26 @@ private:
     const static int COLUMN_COUNT_LARGE = 15;
     
 private:
+    std::unordered_map<std::string, int> mapToHash[COLUMN_COUNT_LARGE];
+    std::vector<std::vector<int>> vectorToHash[COLUMN_COUNT_LARGE];
+    std::vector<std::string> data[COLUMN_COUNT_LARGE];
     std::vector<int> subsets;
     std::vector<int> part;
     char buf[1 << 20];
     int presubl;
     
 private:
-    std::vector<std::vector<int>>* partition;
-    int* rhsPlus;
-    int* partitionSize;
-    
-    std::vector<int>* S;
-    int* T;
+    std::vector<std::vector<int>> partition[1 << COLUMN_COUNT_LARGE];
+    int rhsPlus[1 << COLUMN_COUNT_LARGE];
+    int partitionSize[1 << COLUMN_COUNT_LARGE];
+    // std::vector<std::vector<int>>* partition;
+    // int* rhsPlus;
+    // int* partitionSize;
+
+    std::vector<int> S[ROW_COUNT_LARGE];
+    int T[ROW_COUNT_LARGE];
+    //std::vector<int>* S;
+    //int* T;
     
     std::string inputFileName;
     std::string outputFileName;
@@ -37,9 +46,9 @@ private:
     
     // store the results of dividing by set length
     std::vector<int> binRepresent;
-    bool* available;
-    int* binL;
-    int* binR;
+    bool available[1 << COLUMN_COUNT_LARGE];
+    int binL[COLUMN_COUNT_LARGE + 1];
+    int binR[COLUMN_COUNT_LARGE + 1];
     
     int exactRowCount, exactColumnCount;
     
